@@ -3,9 +3,10 @@ import { toast } from 'react-toastify';
 
 
 const mobile = false;
-const env = import.meta.env.NODE_ENV || 'development';
+const env = import.meta.env.VITE_NODE_ENV || 'development';
+const url = env === 'development' ? "http://localhost:5000/api" :"https://event-management-application-server.vercel.app/api";
 
-const url = env === "development" ? (mobile ? 'http://10.205.121.171:5000/api' : 'http://localhost:5000/api') : 'https://event-management-application-server.vercel.app/api';
+// console.log(env)
 
 // Create axios instance with default config
 const api = axios.create({
