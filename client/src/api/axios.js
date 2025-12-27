@@ -6,7 +6,7 @@ const mobile = false;
 const env = import.meta.env.VITE_NODE_ENV || 'development';
 const url = env === 'development' ? "http://localhost:5000/api" :"https://event-management-application-server.vercel.app/api";
 
-// console.log(env)
+console.log(url)
 
 // Create axios instance with default config
 const api = axios.create({

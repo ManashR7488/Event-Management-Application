@@ -28,6 +28,7 @@ app.use(
     credentials: true,
   })
 );
+console.log(process.env.NODE_ENV)
 app.use(express.json());
 app.use(cookieParser());
 
