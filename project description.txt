@@ -1,0 +1,513 @@
+1. Overview
+This project is a QR-driven event participation and entitlement platform, starting with a single hackathon and designed to evolve into a full annual fest management system (hackathon, sports, cultural, technical events, food stall coupons).
+
+The current scope is a vertical slice for one hackathon:
+
+Team-based registration
+
+Per-member QR identity
+
+Camera-based check-in
+
+Canteen food eligibility and tracking
+
+Organizer dashboards
+
+The design, however, is intentionally generalized so that the same primitives—Event, Team, Member, QR Identity, Entitlement (entry/food)—can be reused and extended across multiple event types.
+
+2. Business Goals
+Replace manual registration and paper passes with a robust digital system.
+
+Ensure accurate, real-time attendance tracking per member and per team.
+
+Enforce food eligibility rules at the canteen based on check-in status.
+
+Provide organizers with operational visibility (who came, who ate, when).
+
+Build an architecture that can expand to the entire annual fest with minimal rework.
+
+3. Roles & Responsibilities
+3.1 Team Lead
+Registers and creates a team for the hackathon.
+
+Adds members (bounded team size).
+
+(Future) Completes payment for the team.
+
+3.2 Team Member
+Is represented individually in the system.
+
+Receives a unique QR code and event instructions via email.
+
+Uses QR for:
+
+Entry check-in at the gate (staff scanner).
+
+Food eligibility at the canteen (scan event QR and get a green tick).
+
+3.3 Staff
+Check-in Staff: Use a camera-based scanner interface to scan member QR and mark check-in.
+
+Canteen Staff: Rely on the system’s eligibility UI (green tick) shown on participants’ phones to distribute food.
+
+3.4 Organizer
+Operates dashboards:
+
+Teams registered, members registered.
+
+Check-in counts and percentages.
+
+Food distribution stats (per member, per team, global).
+
+Exports data for reporting and audit.
+
+3.5 Admin (Future)
+Manages multiple events (annual fest).
+
+Configures event-level rules (quotas, coupon policies).
+
+Manages staff/organizer accounts and platform settings.
+
+4. Domain Model
+4.1 Core Entities (Current Hackathon Scope)
+User
+Identity and authentication entity.
+
+Roles: teamLead, staff, organizer, admin (member-to-user linkage is optional for MVP).
+
+Holds basic profile info (name, email, phone, college).
+
+Event
+Represents a single hackathon in MVP.
+
+Properties:
+
+Name, slug, description.
+
+Dates, venue.
+
+Registration fee per member (for future payments).
+
+Limits: max team size, max teams.
+
+Event-wide canteen QR code (single stable QR per event).
+
+Aggregate stats (teams registered, members checked-in, total food distributed).
+
+Type: hackathon (planned for future: sports, cultural, technical, food).
+
+Team
+Scoped to one Event.
+
+Owned by a Team Lead.
+
+Contains:
+
+Team name.
+
+Lead reference (userId, email).
+
+Members array (embedded documents or referenced).
+
+Payment metadata (amount, status, Stripe IDs – used later).
+
+Timestamps.
+
+Team Member (subdocument or separate collection)
+Represents an individual participant.
+
+Contains:
+
+Name, email, college, roll number.
+
+Unique QR token (string) and optionally QR image.
+
+Check-in state:
+
+isCheckedIn (boolean)
+
+checkInTime
+
+Food scan history:
+
+List of scan records (time, mealType, scannedBy).
+
+CheckinLog
+Append-only audit trail.
+
+Records:
+
+Event, team, member.
+
+QR token scanned.
+
+Type: entry.
+
+Scan time and staff identifier.
+
+FoodDistributionLog
+Append-only log for food entitlements.
+
+Records:
+
+Event, team, member.
+
+Event QR scanned.
+
+Eligibility result (true/false).
+
+Scan time and staff identifier.
+
+5. QR Strategy
+5.1 Member QR (Identity Token)
+Purpose: represent a specific member uniquely and securely.
+
+Content: opaque identifier (e.g., HACK2025_T123_M2 or random UUID).
+
+Usage:
+
+Scanned at check-in gate by staff.
+
+Serves as lookup key to member state (checkedIn flag).
+
+Lifetime: valid for the duration of the event.
+
+5.2 Event Canteen QR (Context Token)
+Purpose: represent the event context for food eligibility.
+
+Content: event identifier (e.g., EVENT:HACKATHON_2025:CANTEEN).
+
+Usage:
+
+Displayed at the canteen.
+
+Scanned by participants using their phones.
+
+UI then prompts/handles linking to their identity and checks eligibility.
+
+Lifetime: stable for the entire event.
+
+This dual-token design—member QR (who you are) and event QR (where you are/what entitlement)—is the core pattern that will scale across all future event types and entitlements.
+
+6. Core Flows
+6.1 Registration (Team Lead)
+Team lead signs up and logs in.
+
+Chooses event (MVP: the single hackathon).
+
+Creates a team, adds member details.
+
+System calculates total fee = memberCount × perMemberFee.
+(Payment integration deferred; architecture ready for Stripe.)
+
+6.2 QR Generation
+When a team is confirmed (for now, on creation; later, on successful payment):
+
+For each member:
+
+Generate a unique QR token.
+
+Persist token alongside member record.
+
+Provide QR via dashboard and email.
+
+6.3 Check-in (Gate)
+Staff opens Check-in panel (staff UI).
+
+Camera-based QR scanner reads member token.
+
+Backend:
+
+Resolves token → member, team, event.
+
+Validates:
+
+Token belongs to this event.
+
+Member not already checked-in.
+
+Marks isCheckedIn = true and sets checkInTime.
+
+Appends an entry record to CheckinLog.
+
+Optional: send email to member with event details and food instructions.
+
+6.4 Food Eligibility & Distribution
+Canteen displays event QR (printed/poster or screen).
+
+Participant scans event QR on their phone:
+
+Frontend loads a page bound to the event context.
+
+Participant identifies themselves:
+
+Either by scanning their member QR from within the page or via a known link or future login.
+
+Backend checks:
+
+Member belongs to this event.
+
+Member is isCheckedIn === true.
+
+UI:
+
+If eligible: show green tick, name, and “Eligible for food” message.
+
+If not eligible: show red error prompt (“Please complete check-in first”).
+
+Backend appends a record to FoodDistributionLog, indicating a successful/failed attempt.
+
+7. System Architecture
+7.1 Backend
+Stack: Node.js, Express, MongoDB/Mongoose.
+
+Modules within a monolithic app:
+
+Auth & Identity
+
+Event Management
+
+Team & Member Management
+
+QR & Check-in
+
+Food Distribution
+
+Reporting & Analytics
+
+Security:
+
+JWT-based authentication.
+
+Role-based authorization at route level (teamLead, staff, organizer, admin).
+
+Unique QR tokens (non-sequential, non-guessable).
+
+No payment card data stored; future Stripe integration relies on tokens/intents only.
+
+Reliability & Data Integrity:
+
+Idempotent check-in: re-scanning an already checked-in QR doesn’t corrupt state; shows appropriate feedback.
+
+Separate state vs. log:
+
+Member state (isCheckedIn, food counters) for fast queries.
+
+Logs (CheckinLog, FoodDistributionLog) for audit history.
+
+7.2 Frontend
+Stack: React, Zustand, Tailwind, Axios, react-qr-reader, qrcode.react, React Router.
+
+App Shells:
+
+Public: landing, registration, login.
+
+Team Lead dashboard: team details, member list, QR display.
+
+Staff dashboard: check-in scanner, canteen/food status.
+
+Organizer dashboard: aggregate stats, tables, simple charts.
+
+State Management:
+
+Auth state and role in Zustand.
+
+Local, screen-level state for scanner UIs.
+
+Network calls via Axios with interceptors for auth.
+
+8. Reporting & Analytics
+Organizer Views:
+
+Overview:
+
+Total teams registered.
+
+Total members.
+
+Checked-in count vs total.
+
+Food distribution count.
+
+Teams page:
+
+Team list, filterable by payment status (future), check-in completion, etc.
+
+Attendance log:
+
+Time-ordered list of check-ins, with filters.
+
+Food report:
+
+Per-member food scans.
+
+Per-team aggregated food count.
+
+Exports:
+
+CSV export endpoints for attendance and food logs.
+
+9. Non-Functional Requirements
+Scalability:
+
+Designed for multiple events and higher volume in future.
+
+Log-heavy operations separated from core entity updates.
+
+Security:
+
+Strong password hashing (bcrypt).
+
+Strict role checks for sensitive operations.
+
+API-level validation and sanitization.
+
+Observability (Future):
+
+Add request logging, error monitoring, performance metrics as the system matures.
+
+10. Future Plans & Architecture (Marked as FUTURE)
+FUTURE 10.1 Multi-Event, Multi-Vertical Platform
+The hackathon slice serves as the blueprint for a unified annual fest platform. Future features:
+
+Multiple events:
+
+Hackathons, sports tournaments, cultural nights, technical workshops, food stalls.
+
+Event as a first-class, configurable resource:
+
+Different registration rules (individual vs team).
+
+Different entitlement rules (entries, food coupons, backstage access, merchandise).
+
+Architecturally:
+
+Event becomes a tenant-like boundary.
+
+All major entities (Team, Member, Tickets, Entitlements) are scoped by Event.
+
+Queries and dashboards become event-aware and cross-event capable.
+
+FUTURE 10.2 Entitlement Engine (Entry, Food, Coupons, Access)
+Generalize “check-in” and “food” into a generic Entitlement concept:
+
+Entitlement types:
+
+ENTRY (gate access).
+
+MEAL (food at canteen or stalls).
+
+COUPON (discounts or free items).
+
+ACCESS (VIP backstage, specific stage areas, labs).
+
+Each entitlement has:
+
+Event, user/member, type, constraints (count, time window, location).
+
+QR flows:
+
+Member QR + Location/Event QR + Entitlement rules → allow/deny + log.
+
+This enables:
+
+Food stall coupon management.
+
+Stage-limited access (e.g., only finalists allowed backstage).
+
+Session-specific entries for technical workshops.
+
+FUTURE 10.3 Payment Integration & Monetization
+Integrate Stripe or UPI-based flows:
+
+Team-level registration payment for hackathons.
+
+Ticketing for high-demand events.
+
+Coupon packs for food stalls.
+
+Architectural considerations:
+
+Payment as a separate bounded context:
+
+PaymentIntent/Order models.
+
+Webhook-driven state changes.
+
+No card data stored on our side.
+
+Potential for:
+
+Dynamic pricing per event.
+
+Discount codes / coupons.
+
+FUTURE 10.4 Role & Access Control Expansion
+Introduce more granular roles:
+
+Separate staff roles: gateStaff, canteenStaff, eventManager.
+
+Sub-organizers per event/club.
+
+Integrate with institute SSO / student portal if available.
+
+FUTURE 10.5 Scaling & Deployment
+Move from a monolith to modular services when necessary:
+
+Identity service
+
+Event & Registration service
+
+Entitlement/Access service
+
+Reporting/Analytics service
+
+Horizontal scaling with:
+
+Load balancers.
+
+Caching for frequently accessed read paths (e.g., event config, aggregate stats).
+
+Observability stack:
+
+Centralized logging.
+
+Metrics (request rate, latencies, errors).
+
+Traces for slow endpoints.
+
+FUTURE 10.6 Mobile & Kiosk Experiences
+Dedicated mobile web or PWA for:
+
+Staff scanning (optimized UI).
+
+Participants to keep all their event QR passes.
+
+Event kiosks for:
+
+Self check-in.
+
+Real-time leaderboard displays (hackathon, sports).
+
+Wayfinding or info displays.
+
+11. MVP Definition (What “Done” Means Now)
+For the current hackathon slice, the system is considered successful when:
+
+Team leads can register and create teams for the hackathon.
+
+Each member receives a unique QR identity.
+
+Staff can reliably check-in members via camera scans.
+
+Canteen process uses event QR + member eligibility to decide food distribution.
+
+Organizers have real-time visibility into:
+
+Registrations.
+
+Check-ins.
+
+Food distribution.
+
+The architecture is clean and generalizable, ready to be extended into the full annual fest platform described in the Future sections.
