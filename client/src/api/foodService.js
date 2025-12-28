@@ -1,11 +1,10 @@
 import api from './axios';
 
-// Check food eligibility with event canteen QR and member QR
-export const checkFoodEligibility = async (eventCanteenQR, memberQRToken) => {
+// Check food eligibility with event canteen QR (auth-protected)
+export const checkFoodEligibility = async (eventCanteenQR) => {
   try {
     const response = await api.post('/food/check-eligibility', {
       eventCanteenQR,
-      memberQRToken,
     });
     
     return {

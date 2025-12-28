@@ -7,9 +7,9 @@ import FoodDistributionLog from '../models/FoodDistributionLog.js';
 // @access  Private (authenticated users)
 export const checkFoodEligibility = async (req, res) => {
   try {
-    const { eventCanteenQR, memberQRToken } = req.body;
+    const { eventCanteenQR } = req.body;
 
-    // Validate both QR tokens are provided
+    // Validate eventCanteenQR
     if (!eventCanteenQR || typeof eventCanteenQR !== 'string' || eventCanteenQR.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -18,11 +18,12 @@ export const checkFoodEligibility = async (req, res) => {
       });
     }
 
-    if (!memberQRToken || typeof memberQRToken !== 'string' || memberQRToken.trim().length === 0) {
+    // Check if user is linked to a team member
+    if (!req.user.teamId || req.user.memberIndex === null) {
       return res.status(400).json({
         success: false,
         eligible: false,
-        error: 'Please provide a valid member QR token',
+        error: 'Your account is not linked to a team member. Please contact your team lead or link your account.',
       });
     }
 
@@ -30,18 +31,19 @@ export const checkFoodEligibility = async (req, res) => {
     const event = await Event.findOne({ canteenQRToken: eventCanteenQR });
 
     if (!event) {
-      // Log failed attempt - invalid event
       await FoodDistributionLog.create({
         eventId: null,
-        teamId: null,
+        teamId: req.user.teamId,
         memberId: null,
-        memberName: 'Unknown',
-        memberEmail: 'Unknown',
-        memberQRToken: memberQRToken,
+        memberName: req.user.name,
+        memberEmail: req.user.email,
+        memberQRToken: req.user.qrToken,
         eventCanteenQR: eventCanteenQR,
         eligible: false,
         reason: 'Invalid event canteen QR code',
         scannedAt: new Date(),
+        scannedBy: req.user._id,
+        scannedByName: req.user.name,
       });
 
       return res.status(404).json({
@@ -53,18 +55,19 @@ export const checkFoodEligibility = async (req, res) => {
 
     // Check if event is active
     if (!event.isActive) {
-      // Log failed attempt - event inactive
       await FoodDistributionLog.create({
         eventId: event._id,
-        teamId: null,
+        teamId: req.user.teamId,
         memberId: null,
-        memberName: 'Unknown',
-        memberEmail: 'Unknown',
-        memberQRToken: memberQRToken,
+        memberName: req.user.name,
+        memberEmail: req.user.email,
+        memberQRToken: req.user.qrToken,
         eventCanteenQR: eventCanteenQR,
         eligible: false,
         reason: 'Event is not active',
         scannedAt: new Date(),
+        scannedBy: req.user._id,
+        scannedByName: req.user.name,
       });
 
       return res.status(400).json({
@@ -74,85 +77,76 @@ export const checkFoodEligibility = async (req, res) => {
       });
     }
 
-    // Find member by QR token
-    const result = await Team.findByMemberQR(memberQRToken);
+    // Find team and member
+    const team = await Team.findById(req.user.teamId);
 
-    if (!result) {
-      // Log failed attempt - member not found
-      await FoodDistributionLog.create({
-        eventId: event._id,
-        teamId: null,
-        memberId: null,
-        memberName: 'Unknown',
-        memberEmail: 'Unknown',
-        memberQRToken: memberQRToken,
-        eventCanteenQR: eventCanteenQR,
-        eligible: false,
-        reason: 'Member not found with provided QR token',
-        scannedAt: new Date(),
-      });
-
+    if (!team) {
       return res.status(404).json({
         success: false,
         eligible: false,
-        error: 'Member not found with provided QR token',
+        error: 'Team not found',
       });
     }
 
-    const { team, member } = result;
+    const member = team.members[req.user.memberIndex];
+
+    if (!member) {
+      return res.status(404).json({
+        success: false,
+        eligible: false,
+        error: 'Member not found in team',
+      });
+    }
 
     // Verify member belongs to the scanned event
     if (team.eventId.toString() !== event._id.toString()) {
-      // Log failed attempt - wrong event
       await FoodDistributionLog.create({
         eventId: event._id,
         teamId: team._id,
         memberId: member._id,
         memberName: member.name,
         memberEmail: member.email,
-        memberQRToken: memberQRToken,
+        memberQRToken: member.qrToken,
         eventCanteenQR: eventCanteenQR,
         eligible: false,
         reason: 'Member does not belong to this event',
         scannedAt: new Date(),
+        scannedBy: req.user._id,
+        scannedByName: req.user.name,
       });
 
       return res.status(400).json({
         success: false,
         eligible: false,
-        error: 'Member does not belong to this event',
+        error: 'You are not registered for this event',
         data: {
-          member: {
-            name: member.name,
-            email: member.email,
-          },
-          event: {
-            name: event.name,
-          },
+          yourEvent: team.eventId,
+          scannedEvent: event.name,
         },
       });
     }
 
     // Check if member is checked in
     if (!member.isCheckedIn) {
-      // Log failed attempt - not checked in
       await FoodDistributionLog.create({
         eventId: event._id,
         teamId: team._id,
         memberId: member._id,
         memberName: member.name,
         memberEmail: member.email,
-        memberQRToken: memberQRToken,
+        memberQRToken: member.qrToken,
         eventCanteenQR: eventCanteenQR,
         eligible: false,
         reason: 'Member must complete check-in first',
         scannedAt: new Date(),
+        scannedBy: req.user._id,
+        scannedByName: req.user.name,
       });
 
       return res.status(200).json({
         success: false,
         eligible: false,
-        error: 'Member must complete check-in first',
+        error: 'You must complete check-in at the gate first',
         data: {
           member: {
             name: member.name,
@@ -173,17 +167,19 @@ export const checkFoodEligibility = async (req, res) => {
       memberId: member._id,
       memberName: member.name,
       memberEmail: member.email,
-      memberQRToken: memberQRToken,
+      memberQRToken: member.qrToken,
       eventCanteenQR: eventCanteenQR,
       eligible: true,
       reason: 'Eligible for food',
       scannedAt: new Date(),
+      scannedBy: req.user._id,
+      scannedByName: req.user.name,
     });
 
     return res.status(200).json({
       success: true,
       eligible: true,
-      message: 'Eligible for food',
+      message: 'You are eligible for food!',
       data: {
         member: {
           name: member.name,
@@ -200,19 +196,20 @@ export const checkFoodEligibility = async (req, res) => {
   } catch (error) {
     console.error('Check food eligibility error:', error);
 
-    // Log failed attempt for unexpected errors
     try {
       await FoodDistributionLog.create({
         eventId: null,
-        teamId: null,
+        teamId: req.user?.teamId || null,
         memberId: null,
-        memberName: 'Unknown',
-        memberEmail: 'Unknown',
-        memberQRToken: req.body.memberQRToken || 'Unknown',
+        memberName: req.user?.name || 'Unknown',
+        memberEmail: req.user?.email || 'Unknown',
+        memberQRToken: req.user?.qrToken || 'Unknown',
         eventCanteenQR: req.body.eventCanteenQR || 'Unknown',
         eligible: false,
         reason: error.message || 'Error checking food eligibility',
         scannedAt: new Date(),
+        scannedBy: req.user?._id || null,
+        scannedByName: req.user?.name || 'Unknown',
       });
     } catch (logError) {
       console.error('Failed to log food eligibility error:', logError);

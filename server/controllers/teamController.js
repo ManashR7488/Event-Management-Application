@@ -1,4 +1,4 @@
-import { Team, Event } from '../models/index.js';
+import { Team, Event, User } from '../models/index.js';
 import mongoose from 'mongoose';
 
 /**
@@ -123,6 +123,20 @@ export const createTeam = async (req, res) => {
       leadPhone,
       members,
     });
+
+    // Auto-link existing users to their team members
+    for (let i = 0; i < team.members.length; i++) {
+      const member = team.members[i];
+      const user = await User.findOne({ email: member.email });
+      
+      if (user && !user.teamId) {
+        // Auto-link user to this member
+        user.teamId = team._id;
+        user.memberIndex = i;
+        user.qrToken = member.qrToken;
+        await user.save();
+      }
+    }
 
     // Update event stats using atomic operations
     await Event.findByIdAndUpdate(eventId, {
@@ -318,6 +332,22 @@ export const addMembers = async (req, res) => {
 
     // Save team (triggers pre-save hooks for QR generation and validation)
     await team.save();
+
+    // Auto-link existing users to their newly added team members
+    const startIndex = team.members.length - members.length;
+    for (let i = 0; i < members.length; i++) {
+      const member = members[i];
+      const memberIndex = startIndex + i;
+      const user = await User.findOne({ email: member.email });
+      
+      if (user && !user.teamId) {
+        // Auto-link user to this member
+        user.teamId = team._id;
+        user.memberIndex = memberIndex;
+        user.qrToken = team.members[memberIndex].qrToken;
+        await user.save();
+      }
+    }
 
     // Update event stats using atomic operations
     await Event.findByIdAndUpdate(team.eventId._id, {

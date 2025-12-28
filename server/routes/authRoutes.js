@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, logout, me } from '../controllers/authController.js';
+import { register, login, logout, me, linkMemberAccount } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -11,6 +11,7 @@ router.post('/logout', logout);
 
 // Protected routes - accessible to all authenticated users
 router.get('/me', protect, me);
+router.post('/link-member', protect, linkMemberAccount);
 
 // Example: Role-specific protected routes (to be implemented)
 // router.get('/admin/users', protect, authorizeAdmin, getAllUsers);

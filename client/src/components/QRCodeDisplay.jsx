@@ -8,20 +8,23 @@ const QRCodeDisplay = ({ member, teamName, eventName }) => {
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+    <div className="glass-card border border-white/5 rounded-xl p-5 hover:border-cyan-500/30 transition-all relative group overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-3xl rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-800">{member.name}</h3>
-          <p className="text-sm text-gray-600">{member.email}</p>
+      <div className="flex items-start justify-between mb-4 relative z-10">
+        <div className="flex-1 min-w-0 pr-2">
+          <h3 className="font-bold text-white truncate">{member.name}</h3>
+          <p className="text-sm text-slate-400 truncate">{member.email}</p>
         </div>
         {member.isCheckedIn ? (
-          <span className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 text-xs font-medium rounded-full shadow-[0_0_10px_rgba(16,185,129,0.2)]">
             <FaCheckCircle className="text-xs" />
             Checked In
           </span>
         ) : (
-          <span className="flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 text-slate-400 border border-white/5 text-xs font-medium rounded-full">
             <FaClock className="text-xs" />
             Pending
           </span>
@@ -29,41 +32,43 @@ const QRCodeDisplay = ({ member, teamName, eventName }) => {
       </div>
 
       {/* QR Code */}
-      <div className="flex justify-center my-4 bg-white p-3 rounded-lg border border-gray-100">
-        <QRCodeCanvas
-          id={`qr-${member.qrToken}`}
-          value={member.qrToken}
-          size={200}
-          level="H"
-          includeMargin={true}
-        />
+      <div className="flex justify-center my-5 relative z-10">
+         <div className="p-3 bg-white rounded-xl shadow-lg shadow-black/20">
+            <QRCodeCanvas
+            id={`qr-${member.qrToken}`}
+            value={member.qrToken}
+            size={180}
+            level="H"
+            includeMargin={false}
+            />
+         </div>
       </div>
 
       {/* Member Details */}
-      <div className="space-y-1 mb-3 text-sm">
+      <div className="space-y-2 mb-4 text-sm relative z-10 bg-slate-950/30 p-3 rounded-lg border border-white/5">
         <div className="flex justify-between">
-          <span className="text-gray-600">College:</span>
-          <span className="text-gray-800 font-medium">{member.college}</span>
+          <span className="text-slate-500">College</span>
+          <span className="text-slate-200 font-medium truncate max-w-[150px]">{member.college}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Roll No:</span>
-          <span className="text-gray-800 font-medium">{member.rollNumber}</span>
+          <span className="text-slate-500">Roll No</span>
+          <span className="text-slate-200 font-medium">{member.rollNumber}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Team:</span>
-          <span className="text-gray-800 font-medium">{teamName}</span>
+          <span className="text-slate-500">Team</span>
+          <span className="text-slate-200 font-medium truncate max-w-[150px]">{teamName}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Event:</span>
-          <span className="text-gray-800 font-medium">{eventName}</span>
+          <span className="text-slate-500">Event</span>
+          <span className="text-slate-200 font-medium truncate max-w-[150px]">{eventName}</span>
         </div>
       </div>
 
       {/* Check-in Time */}
       {member.isCheckedIn && member.checkInTime && (
-        <div className="mb-3 p-2 bg-green-50 rounded-md">
-          <p className="text-xs text-green-700">
-            Checked in: {new Date(member.checkInTime).toLocaleString('en-US', {
+        <div className="mb-4 p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/10 relative z-10">
+          <p className="text-xs text-emerald-400 text-center font-medium">
+            Checked in at {new Date(member.checkInTime).toLocaleString('en-US', {
               dateStyle: 'medium',
               timeStyle: 'short',
             })}
@@ -74,10 +79,10 @@ const QRCodeDisplay = ({ member, teamName, eventName }) => {
       {/* Download Button */}
       <button
         onClick={handleDownload}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 text-slate-200 rounded-xl hover:bg-white hover:text-slate-900 transition-all font-bold relative z-10 border border-white/5 hover:border-white shadow-lg"
       >
         <FaDownload className="text-sm" />
-        Download QR Code
+        Download QR
       </button>
     </div>
   );

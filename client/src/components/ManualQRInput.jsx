@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FaKeyboard, FaQrcode } from 'react-icons/fa';
+import { FaKeyboard, FaQrcode, FaArrowRight } from 'react-icons/fa';
 
 const ManualQRInput = ({ onSubmit, isLoading }) => {
   const [qrToken, setQrToken] = useState('');
@@ -24,19 +24,24 @@ const ManualQRInput = ({ onSubmit, isLoading }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg border-2 border-gray-300 p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <FaKeyboard className="text-blue-600 text-xl" />
-        <h3 className="text-lg font-semibold text-gray-800">Manual Token Entry</h3>
+    <div className="glass-card p-6 border border-white/10 animate-fade-in">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-blue-500/20 rounded-lg">
+          <FaKeyboard className="text-blue-400 text-xl" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-white">Manual Entry</h3>
+          <p className="text-xs text-slate-400">Type the QR token below</p>
+        </div>
       </div>
       
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <div className="relative">
-            <FaQrcode className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <div className="relative group">
+            <FaQrcode className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
             <input
               type="text"
-              placeholder="Enter QR token manually..."
+              placeholder="Enter QR token..."
               value={qrToken}
               onChange={(e) => {
                 setQrToken(e.target.value);
@@ -44,18 +49,18 @@ const ManualQRInput = ({ onSubmit, isLoading }) => {
               }}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
-              className={`w-full pl-10 pr-3 py-3 border ${
-                error ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
+              className={`w-full pl-12 pr-4 py-4 bg-slate-900/50 border ${
+                error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500/50'
+              } rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500/20 text-white placeholder-slate-500 transition-all duration-300`}
             />
           </div>
-          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          {error && <p className="text-red-400 text-xs mt-2 ml-1 animate-fade-in">{error}</p>}
         </div>
 
         <button
           type="submit"
           disabled={isLoading || !qrToken.trim()}
-          className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+          className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 font-bold tracking-wide"
         >
           {isLoading ? (
             <>
@@ -64,14 +69,13 @@ const ManualQRInput = ({ onSubmit, isLoading }) => {
             </>
           ) : (
             <>
-              <FaQrcode />
-              Check In
+              Check In <FaArrowRight />
             </>
           )}
         </button>
 
-        <p className="text-xs text-gray-500 text-center">
-          Press Enter or click the button to submit
+        <p className="text-xs text-slate-500 text-center">
+          Press <kbd className="px-2 py-0.5 bg-slate-800 rounded text-slate-300 font-mono">Enter</kbd> to submit
         </p>
       </form>
     </div>

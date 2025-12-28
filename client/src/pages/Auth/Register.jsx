@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock, FaPhone, FaUniversity, FaUserTag } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaUser, FaEnvelope, FaLock, FaPhone, FaUniversity, FaUserTag, FaArrowRight } from 'react-icons/fa';
 import useAuthStore from '../../store/authStore';
 import {
   validateEmail,
@@ -103,218 +103,231 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 sm:px-6 lg:px-8 relative overflow-hidden py-12">
+       {/* Background Elements */}
+       <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+       <div className="absolute top-[10%] right-[-10%] w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob animate-delay-2000"></div>
+
+      <div className="glass-card max-w-lg w-full space-y-8 p-10 rounded-2xl shadow-2xl border border-white/10 relative z-10 animate-fade-in-up">
         {/* Header */}
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-gray-900">
+        <div className="text-center">
+            <Link to="/" className="text-4xl mb-6 block hover:scale-110 transition-transform duration-300">🎉</Link>
+          <h2 className="text-3xl font-extrabold text-white tracking-tight">
             Create Account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join us to manage your fest events
+          <p className="mt-2 text-sm text-slate-400">
+            Join the fest management platform today
           </p>
         </div>
 
         {/* Form */}
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
-          {/* Name Field */}
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Full Name *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUser className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
-                  errors.name ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                placeholder="John Doe"
-              />
-            </div>
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaEnvelope className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-                className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                placeholder="you@example.com"
-              />
-            </div>
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-            )}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`appearance-none block w-full pl-10 pr-10 py-2 border ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                placeholder="Min. 6 characters"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+          
+          <div className="space-y-4">
+              {/* Name Field */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-1">
+                  Full Name <span className="text-cyan-400">*</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUser className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 pr-3 py-3 bg-white/5 border ${
+                      errors.name ? 'border-red-500/50' : 'border-white/10'
+                    } rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300`}
+                    placeholder="John Doe"
+                  />
+                </div>
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-400 animate-pulse">{errors.name}</p>
                 )}
-              </button>
-            </div>
-            {errors.password && (
-              <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-            )}
-          </div>
-
-          {/* Confirm Password Field */}
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-              Confirm Password *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaLock className="h-5 w-5 text-gray-400" />
               </div>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type={showConfirmPassword ? 'text' : 'password'}
-                autoComplete="new-password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className={`appearance-none block w-full pl-10 pr-10 py-2 border ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                placeholder="Re-enter password"
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              >
-                {showConfirmPassword ? (
-                  <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                ) : (
-                  <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+
+              {/* Email Field */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1">
+                  Email Address <span className="text-cyan-400">*</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaEnvelope className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 pr-3 py-3 bg-white/5 border ${
+                      errors.email ? 'border-red-500/50' : 'border-white/10'
+                    } rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300`}
+                    placeholder="you@example.com"
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-400 animate-pulse">{errors.email}</p>
                 )}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
-            )}
-          </div>
-
-          {/* Phone Field */}
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaPhone className="h-5 w-5 text-gray-400" />
               </div>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className={`appearance-none block w-full pl-10 pr-3 py-2 border ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                } rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
-                placeholder="9876543210"
-              />
-            </div>
-            {errors.phone && (
-              <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-            )}
-          </div>
 
-          {/* College Field */}
-          <div>
-            <label htmlFor="college" className="block text-sm font-medium text-gray-700">
-              College/Institution
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUniversity className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                id="college"
-                name="college"
-                type="text"
-                value={formData.college}
-                onChange={handleChange}
-                className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Your college name"
-              />
-            </div>
-          </div>
+              {/* Password Field */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1">
+                      Password <span className="text-cyan-400">*</span>
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                      </div>
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className={`block w-full pl-10 pr-10 py-3 bg-white/5 border ${
+                          errors.password ? 'border-red-500/50' : 'border-white/10'
+                        } rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300`}
+                        placeholder="Min. 6 chars"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-slate-500 hover:text-cyan-400 transition-colors" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-slate-500 hover:text-cyan-400 transition-colors" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.password && (
+                      <p className="mt-1 text-sm text-red-400 animate-pulse">{errors.password}</p>
+                    )}
+                  </div>
 
-          {/* Role Field */}
-          <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-              Role *
-            </label>
-            <div className="mt-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <FaUserTag className="h-5 w-5 text-gray-400" />
+                  {/* Confirm Password Field */}
+                  <div>
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-300 mb-1">
+                      Confirm <span className="text-cyan-400">*</span>
+                    </label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <FaLock className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                      </div>
+                      <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                         className={`block w-full pl-10 pr-10 py-3 bg-white/5 border ${
+                          errors.confirmPassword ? 'border-red-500/50' : 'border-white/10'
+                        } rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300`}
+                        placeholder="Re-enter"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      >
+                        {showConfirmPassword ? (
+                          <FaEyeSlash className="h-5 w-5 text-slate-500 hover:text-cyan-400 transition-colors" />
+                        ) : (
+                          <FaEye className="h-5 w-5 text-slate-500 hover:text-cyan-400 transition-colors" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.confirmPassword && (
+                      <p className="mt-1 text-sm text-red-400 animate-pulse">{errors.confirmPassword}</p>
+                    )}
+                  </div>
               </div>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                <option value="teamLead">Team Lead</option>
-                <option value="staff">Staff</option>
-                <option value="organizer">Organizer</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+
+              {/* Phone Field */}
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-slate-300 mb-1">
+                  Phone Number
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaPhone className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className={`block w-full pl-10 pr-3 py-3 bg-white/5 border ${
+                      errors.phone ? 'border-red-500/50' : 'border-white/10'
+                    } rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300`}
+                    placeholder="9876543210"
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-400 animate-pulse">{errors.phone}</p>
+                )}
+              </div>
+
+              {/* College Field */}
+              <div>
+                <label htmlFor="college" className="block text-sm font-medium text-slate-300 mb-1">
+                  College/Institution
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUniversity className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <input
+                    id="college"
+                    name="college"
+                    type="text"
+                    value={formData.college}
+                    onChange={handleChange}
+                    className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-xl shadow-inner text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300"
+                    placeholder="Your college name"
+                  />
+                </div>
+              </div>
+
+              {/* Role Field */}
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-slate-300 mb-1">
+                  Role <span className="text-cyan-400">*</span>
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaUserTag className="h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                  </div>
+                  <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="block w-full pl-10 pr-3 py-3 bg-white/5 border border-white/10 rounded-xl shadow-inner text-white focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 sm:text-sm transition-all duration-300 appearance-none"
+                  >
+                    <option value="teamLead" className="bg-slate-900">Team Lead</option>
+                    <option value="staff" className="bg-slate-900">Staff</option>
+                    <option value="organizer" className="bg-slate-900">Organizer</option>
+                    <option value="admin" className="bg-slate-900">Admin</option>
+                  </select>
+                   <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                      <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
           </div>
 
           {/* Submit Button */}
@@ -322,7 +335,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all duration-300"
             >
               {isLoading ? (
                 <span className="flex items-center">
@@ -349,20 +362,25 @@ const Register = () => {
                   Creating account...
                 </span>
               ) : (
-                'Create Account'
+                 <span className="flex items-center gap-2">
+                    Create Account <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                  </span>
               )}
             </button>
           </div>
 
           {/* Links */}
-          <div className="text-center text-sm">
-            <Link
-              to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Already have an account? Sign in
-            </Link>
-          </div>
+          <div className="text-center pt-2">
+             <p className="text-sm text-slate-400">
+               Already have an account?{' '}
+               <Link
+                 to="/login"
+                 className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors hover:underline"
+               >
+                 Sign in
+               </Link>
+             </p>
+           </div>
         </form>
       </div>
     </div>

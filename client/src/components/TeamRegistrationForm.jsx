@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaUsers, FaTrophy } from 'react-icons/fa';
+import { FaCalendarAlt, FaUsers, FaTrophy, FaInfoCircle, FaCheckCircle, FaMoneyBillWave } from 'react-icons/fa';
 import { getAllEvents } from '../api/eventService';
 import { validateTeamName, validateMemberArray } from '../utils/validation';
 import { calculateTotalFee, formatDate } from '../utils/qrHelpers';
@@ -102,75 +102,79 @@ const TeamRegistrationForm = ({ onSuccess }) => {
 
   if (events.length === 0) {
     return (
-      <div className="text-center p-8 bg-gray-50 rounded-lg">
-        <FaCalendarAlt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">No Events Available</h3>
-        <p className="text-gray-600">There are currently no events with open registration.</p>
+      <div className="text-center p-8 bg-slate-900 border border-white/10 rounded-xl">
+        <FaCalendarAlt className="mx-auto h-12 w-12 text-slate-600 mb-4" />
+        <h3 className="text-lg font-semibold text-white mb-2">No Events Available</h3>
+        <p className="text-slate-400">There are currently no events with open registration.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in">
       {/* Event Selection */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Select Event *
+      <div className="space-y-3">
+        <label className="block text-sm font-medium text-slate-300">
+          Select Event <span className="text-red-400">*</span>
         </label>
         <div className="relative">
-          <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FaCalendarAlt className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500" />
           <select
             value={selectedEvent?._id || ''}
             onChange={(e) => handleEventChange(e.target.value)}
-            className={`w-full pl-10 pr-3 py-2 border ${
-              errors.event ? 'border-red-500' : 'border-gray-300'
-            } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white`}
+            className={`w-full pl-11 pr-4 py-3 bg-slate-900/50 border ${
+              errors.event ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500/50'
+            } rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500/50 appearance-none text-white transition-all cursor-pointer`}
           >
-            <option value="">Choose an event...</option>
+            <option value="" className="bg-slate-900">Choose an event...</option>
             {events.map((event) => (
-              <option key={event._id} value={event._id}>
+              <option key={event._id} value={event._id} className="bg-slate-900">
                 {event.name} - {formatDate(event.startDate)}
               </option>
             ))}
           </select>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500 text-xs">▼</div>
         </div>
-        {errors.event && <p className="text-red-500 text-sm mt-1">{errors.event}</p>}
+        {errors.event && <p className="text-red-400 text-sm mt-1">{errors.event}</p>}
       </div>
 
       {/* Event Details */}
       {selectedEvent && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-            <FaTrophy className="text-blue-600" />
-            Event Details
+        <div className="bg-gradient-to-br from-blue-900/20 to-cyan-900/20 border border-blue-500/20 rounded-xl p-5 backdrop-blur-sm relative overflow-hidden">
+          {/* Decorative Glow */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+          <h3 className="font-bold text-white mb-4 flex items-center gap-2 relative z-10">
+            <FaTrophy className="text-cyan-400" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">Event Details</span>
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-            <div>
-              <span className="text-blue-700 font-medium">Dates:</span>
-              <p className="text-blue-900">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm relative z-10">
+            <div className="bg-slate-900/40 p-3 rounded-lg border border-white/5">
+              <span className="text-slate-400 text-xs uppercase tracking-wide font-medium block mb-1">Dates</span>
+              <p className="text-white font-medium">
                 {formatDate(selectedEvent.startDate)} - {formatDate(selectedEvent.endDate)}
               </p>
             </div>
-            <div>
-              <span className="text-blue-700 font-medium">Venue:</span>
-              <p className="text-blue-900">{selectedEvent.venue}</p>
+            <div className="bg-slate-900/40 p-3 rounded-lg border border-white/5">
+              <span className="text-slate-400 text-xs uppercase tracking-wide font-medium block mb-1">Venue</span>
+              <p className="text-white font-medium">{selectedEvent.venue}</p>
             </div>
-            <div>
-              <span className="text-blue-700 font-medium">Team Size:</span>
-              <p className="text-blue-900">
+            <div className="bg-slate-900/40 p-3 rounded-lg border border-white/5">
+              <span className="text-slate-400 text-xs uppercase tracking-wide font-medium block mb-1">Team Size</span>
+              <p className="text-white font-medium">
                 {selectedEvent.minTeamSize === selectedEvent.maxTeamSize
                   ? `${selectedEvent.minTeamSize} members`
                   : `${selectedEvent.minTeamSize}-${selectedEvent.maxTeamSize} members`}
               </p>
             </div>
-            <div>
-              <span className="text-blue-700 font-medium">Fee per Member:</span>
-              <p className="text-blue-900">₹{selectedEvent.registrationFeePerMember}</p>
+            <div className="bg-slate-900/40 p-3 rounded-lg border border-white/5">
+              <span className="text-slate-400 text-xs uppercase tracking-wide font-medium block mb-1">Fee per Member</span>
+              <p className="text-cyan-300 font-bold">₹{selectedEvent.registrationFeePerMember}</p>
             </div>
           </div>
           {selectedEvent.description && (
-            <div className="mt-3 pt-3 border-t border-blue-200">
-              <p className="text-sm text-blue-800">{selectedEvent.description}</p>
+            <div className="mt-4 pt-4 border-t border-white/10 relative z-10">
+              <p className="text-sm text-slate-300 leading-relaxed">{selectedEvent.description}</p>
             </div>
           )}
         </div>
@@ -178,12 +182,12 @@ const TeamRegistrationForm = ({ onSuccess }) => {
 
       {/* Team Name */}
       {selectedEvent && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Team Name *
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-slate-300">
+            Team Name <span className="text-red-400">*</span>
           </label>
           <div className="relative">
-            <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FaUsers className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Enter your team name"
@@ -194,12 +198,12 @@ const TeamRegistrationForm = ({ onSuccess }) => {
                   setErrors((prev) => ({ ...prev, teamName: null }));
                 }
               }}
-              className={`w-full pl-10 pr-3 py-2 border ${
-                errors.teamName ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full pl-11 pr-4 py-3 bg-slate-900/50 border ${
+                errors.teamName ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-cyan-500/50'
+              } rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500/50 text-white placeholder-slate-600 transition-all`}
             />
           </div>
-          {errors.teamName && <p className="text-red-500 text-sm mt-1">{errors.teamName}</p>}
+          {errors.teamName && <p className="text-red-400 text-sm mt-1">{errors.teamName}</p>}
         </div>
       )}
 
@@ -217,15 +221,17 @@ const TeamRegistrationForm = ({ onSuccess }) => {
 
       {/* Fee Summary */}
       {selectedEvent && members.length > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-5 backdrop-blur-sm">
           <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-green-700">Total Registration Fee</p>
-              <p className="text-xs text-green-600 mt-1">
+            <div className="space-y-1">
+              <p className="text-sm text-emerald-300 font-medium flex items-center gap-2">
+                 <FaMoneyBillWave /> Total Registration Fee
+              </p>
+              <p className="text-xs text-emerald-400/70">
                 {members.length} members × ₹{selectedEvent.registrationFeePerMember}
               </p>
             </div>
-            <p className="text-2xl font-bold text-green-900">
+            <p className="text-3xl font-bold text-emerald-400 shadow-emerald-500/20 drop-shadow-sm">
               ₹{calculateTotalFee(members.length, selectedEvent.registrationFeePerMember)}
             </p>
           </div>
@@ -236,7 +242,7 @@ const TeamRegistrationForm = ({ onSuccess }) => {
       <button
         type="submit"
         disabled={teamLoading || !selectedEvent}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+        className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-bold text-lg shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 active:scale-[0.98]"
       >
         {teamLoading ? (
           <>
@@ -245,16 +251,19 @@ const TeamRegistrationForm = ({ onSuccess }) => {
           </>
         ) : (
           <>
-            <FaUsers />
+            <FaCheckCircle />
             Register Team
           </>
         )}
       </button>
 
       {/* Info Note */}
-      <div className="text-xs text-gray-600 text-center">
-        <p>By registering, you agree to the event terms and conditions.</p>
-        <p className="mt-1">QR codes will be generated automatically for all team members.</p>
+      <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-900/20 border border-blue-500/20 text-xs text-blue-300">
+         <FaInfoCircle className="text-base shrink-0 mt-0.5" />
+         <div>
+            <p className="font-medium mb-1">Registration Information</p>
+            <p className="opacity-80 leading-relaxed">By registering, you agree to the event terms. Individual QR codes will be generated automatically for all team members upon successful registration.</p>
+         </div>
       </div>
     </form>
   );

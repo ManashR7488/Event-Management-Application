@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaCheckCircle, FaTimesCircle, FaEdit, FaTrash, FaChevronLeft, FaChevronRight, FaUserShield } from 'react-icons/fa';
 import { getAllUsers, activateUser, deactivateUser, updateUserRole, deleteUser } from '../../../api/adminService';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast'; // Changed from react-toastify to react-hot-toast for consistency if used elsewhere, but keeping import consistent with valid project deps
 import useAuthStore from '../../../store/authStore';
 
 const UsersTab = () => {
@@ -165,12 +165,12 @@ const UsersTab = () => {
 
   const getRoleBadgeColor = (role) => {
     const colors = {
-      admin: 'bg-red-100 text-red-800',
-      organizer: 'bg-blue-100 text-blue-800',
-      staff: 'bg-green-100 text-green-800',
-      teamLead: 'bg-purple-100 text-purple-800',
+      admin: 'bg-red-500/20 text-red-300 border border-red-500/30',
+      organizer: 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+      staff: 'bg-green-500/20 text-green-300 border border-green-500/30',
+      teamLead: 'bg-purple-500/20 text-purple-300 border border-purple-500/30',
     };
-    return colors[role] || 'bg-gray-100 text-gray-800';
+    return colors[role] || 'bg-slate-700 text-slate-300 border border-slate-600';
   };
 
   const formatDate = (dateString) => {
@@ -185,23 +185,23 @@ const UsersTab = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
-        <p className="text-gray-600 mt-1">Manage platform users and permissions</p>
+        <h2 className="text-2xl font-bold text-white">User Management</h2>
+        <p className="text-slate-400 mt-1">Manage platform users and permissions</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+      <div className="glass-card p-4 rounded-xl border border-white/10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="md:col-span-2">
             <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by name or email..."
                 value={filters.search}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-slate-500"
               />
             </div>
           </div>
@@ -211,13 +211,13 @@ const UsersTab = () => {
             <select
               value={filters.role}
               onChange={(e) => handleFilterChange('role', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-slate-300 appearance-none"
             >
-              <option value="">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="organizer">Organizer</option>
-              <option value="staff">Staff</option>
-              <option value="teamLead">Team Lead</option>
+              <option value="" className="bg-slate-900">All Roles</option>
+              <option value="admin" className="bg-slate-900">Admin</option>
+              <option value="organizer" className="bg-slate-900">Organizer</option>
+              <option value="staff" className="bg-slate-900">Staff</option>
+              <option value="teamLead" className="bg-slate-900">Team Lead</option>
             </select>
           </div>
 
@@ -226,11 +226,11 @@ const UsersTab = () => {
             <select
               value={filters.isActive}
               onChange={(e) => handleFilterChange('isActive', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-slate-300 appearance-none"
             >
-              <option value="">All Status</option>
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
+              <option value="" className="bg-slate-900">All Status</option>
+              <option value="true" className="bg-slate-900">Active</option>
+              <option value="false" className="bg-slate-900">Inactive</option>
             </select>
           </div>
         </div>
@@ -239,18 +239,18 @@ const UsersTab = () => {
       {/* Loading State */}
       {isLoading && (
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="ml-4 text-gray-600">Loading users...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+          <p className="ml-4 text-slate-400">Loading users...</p>
         </div>
       )}
 
       {/* Error State */}
       {error && !isLoading && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-800">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+          <p className="text-red-300">{error}</p>
           <button
             onClick={fetchUsers}
-            className="mt-2 text-red-600 hover:text-red-800 font-medium"
+            className="mt-2 text-red-400 hover:text-red-300 font-medium"
           >
             Retry
           </button>
@@ -259,35 +259,35 @@ const UsersTab = () => {
 
       {/* Users Table */}
       {!isLoading && !error && users.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="glass-card rounded-xl border border-white/10 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-white/5 border-b border-white/10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">College</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Role</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">College</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Joined</th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-white/5">
                 {users.map((user) => (
-                  <tr key={user._id} className="hover:bg-gray-50">
+                  <tr key={user._id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-white">
                           {user.name}
                           {user._id === currentUser._id && (
-                            <span className="ml-2 text-xs text-blue-600">(You)</span>
+                            <span className="ml-2 text-xs text-cyan-400">(You)</span>
                           )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.email}</div>
+                      <div className="text-sm text-slate-300">{user.email}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.role)}`}>
@@ -295,15 +295,15 @@ const UsersTab = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{user.college || '-'}</div>
+                      <div className="text-sm text-slate-300">{user.college || '-'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`flex items-center gap-1 text-sm ${user.isActive ? 'text-green-600' : 'text-gray-600'}`}>
+                      <span className={`flex items-center gap-1 text-sm ${user.isActive ? 'text-green-400' : 'text-slate-500'}`}>
                         {user.isActive ? <FaCheckCircle /> : <FaTimesCircle />}
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-400">
                       {formatDate(user.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -312,7 +312,7 @@ const UsersTab = () => {
                           <button
                             onClick={() => handleOpenDeactivateConfirm(user)}
                             disabled={user._id === currentUser._id}
-                            className="text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                            className="text-red-400 hover:text-red-300 disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
                             title="Deactivate"
                           >
                             <FaTimesCircle />
@@ -320,7 +320,7 @@ const UsersTab = () => {
                         ) : (
                           <button
                             onClick={() => handleActivateUser(user._id)}
-                            className="text-green-600 hover:text-green-800"
+                            className="text-green-400 hover:text-green-300 transition-colors"
                             title="Activate"
                           >
                             <FaCheckCircle />
@@ -329,7 +329,7 @@ const UsersTab = () => {
                         <button
                           onClick={() => handleOpenRoleModal(user)}
                           disabled={user._id === currentUser._id}
-                          className="text-blue-600 hover:text-blue-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                          className="text-blue-400 hover:text-blue-300 disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
                           title="Change Role"
                         >
                           <FaEdit />
@@ -337,7 +337,7 @@ const UsersTab = () => {
                         <button
                           onClick={() => handleOpenDeleteConfirm(user)}
                           disabled={user._id === currentUser._id}
-                          className="text-red-600 hover:text-red-800 disabled:text-gray-400 disabled:cursor-not-allowed"
+                          className="text-red-400 hover:text-red-300 disabled:text-slate-600 disabled:cursor-not-allowed transition-colors"
                           title="Delete User"
                         >
                           <FaTrash />
@@ -351,26 +351,26 @@ const UsersTab = () => {
           </div>
 
           {/* Pagination */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+          <div className="bg-white/5 px-6 py-4 border-t border-white/10">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-slate-400">
                 Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.totalUsers)} of {pagination.totalUsers} users
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handlePageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage === 1}
-                  className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
                 >
                   <FaChevronLeft />
                 </button>
-                <span className="text-sm text-gray-700">
+                <span className="text-sm text-slate-300">
                   Page {pagination.currentPage} of {pagination.totalPages}
                 </span>
                 <button
                   onClick={() => handlePageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage === pagination.totalPages}
-                  className="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-1 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
                 >
                   <FaChevronRight />
                 </button>
@@ -382,43 +382,43 @@ const UsersTab = () => {
 
       {/* Empty State */}
       {!isLoading && !error && users.length === 0 && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-          <FaUserShield className="text-gray-400 text-5xl mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">No users found</h3>
-          <p className="text-gray-600">Try adjusting your filters</p>
+        <div className="glass-card p-12 text-center rounded-xl border border-white/10">
+          <FaUserShield className="text-slate-600 text-5xl mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">No users found</h3>
+          <p className="text-slate-400">Try adjusting your filters</p>
         </div>
       )}
 
       {/* Change Role Modal */}
       {showRoleModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Change User Role</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Change role for <span className="font-semibold">{selectedUser?.name}</span>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-white/10">
+            <h3 className="text-lg font-bold text-white mb-4">Change User Role</h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Change role for <span className="font-semibold text-cyan-400">{selectedUser?.name}</span>
             </p>
             <select
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              className="w-full px-3 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white mb-4 appearance-none"
               disabled={isSubmitting}
             >
-              <option value="teamLead">Team Lead</option>
-              <option value="staff">Staff</option>
-              <option value="organizer">Organizer</option>
-              <option value="admin">Admin</option>
+              <option value="teamLead" className="bg-slate-900">Team Lead</option>
+              <option value="staff" className="bg-slate-900">Staff</option>
+              <option value="organizer" className="bg-slate-900">Organizer</option>
+              <option value="admin" className="bg-slate-900">Admin</option>
             </select>
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowRoleModal(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-white/10 text-slate-300 rounded-lg hover:bg-white/5 transition-colors"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmRoleChange}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:shadow-lg hover:shadow-cyan-500/20 disabled:opacity-50 transition-all"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Updating...' : 'Update Role'}
@@ -430,23 +430,23 @@ const UsersTab = () => {
 
       {/* Deactivate Confirmation Modal */}
       {showDeactivateConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Deactivate User</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to deactivate <span className="font-semibold">{selectedUser?.name}</span>? They will not be able to access the platform.
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-white/10">
+            <h3 className="text-lg font-bold text-white mb-4">Deactivate User</h3>
+            <p className="text-sm text-slate-400 mb-4">
+              Are you sure you want to deactivate <span className="font-semibold text-white">{selectedUser?.name}</span>? They will not be able to access the platform.
             </p>
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowDeactivateConfirm(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-white/10 text-slate-300 rounded-lg hover:bg-white/5 transition-colors"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDeactivate}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Deactivating...' : 'Deactivate'}
@@ -458,30 +458,30 @@ const UsersTab = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="glass-card rounded-xl shadow-2xl max-w-md w-full p-6 border border-white/10">
             <div className="flex items-center gap-3 mb-4">
-              <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <FaTrash className="text-red-600 text-xl" />
+              <div className="flex-shrink-0 w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
+                <FaTrash className="text-red-500 text-xl" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-gray-800">Delete User</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Are you sure you want to permanently delete <span className="font-semibold">{selectedUser?.name}</span>? This action cannot be undone.
+                <h3 className="text-lg font-bold text-white">Delete User</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  Are you sure you want to permanently delete <span className="font-semibold text-white">{selectedUser?.name}</span>? This action cannot be undone.
                 </p>
               </div>
             </div>
             <div className="flex items-center justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-white/10 text-slate-300 rounded-lg hover:bg-white/5 transition-colors"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400"
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

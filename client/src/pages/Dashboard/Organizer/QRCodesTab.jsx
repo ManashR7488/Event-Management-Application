@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaQrcode, FaSearch, FaSpinner } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { getAllEvents, getEventCanteenQR } from '../../../api/eventService';
 import EventQRDisplay from '../../../components/EventQRDisplay';
 import EventQRInstructions from '../../../components/EventQRInstructions';
@@ -68,18 +68,18 @@ const QRCodesTab = () => {
 
   const getStatusBadge = (event) => {
     if (!event.isActive) {
-      return <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">Inactive</span>;
+      return <span className="px-3 py-1 bg-slate-500/20 text-slate-300 text-xs font-medium rounded-full border border-slate-500/20">Inactive</span>;
     }
     if (event.registrationOpen) {
-      return <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Open</span>;
+      return <span className="px-3 py-1 bg-green-500/20 text-green-300 text-xs font-medium rounded-full border border-green-500/20">Open</span>;
     }
-    return <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Active</span>;
+    return <span className="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-medium rounded-full border border-blue-500/20">Active</span>;
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <FaSpinner className="animate-spin text-4xl text-blue-600" />
+        <FaSpinner className="animate-spin text-4xl text-cyan-500" />
       </div>
     );
   }
@@ -89,12 +89,12 @@ const QRCodesTab = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">Event QR Codes</h2>
-          <p className="text-gray-600 mt-1">Download and print canteen QR codes for your events</p>
+          <h2 className="text-2xl font-bold text-white">Event QR Codes</h2>
+          <p className="text-slate-400 mt-1">Download and print canteen QR codes for your events</p>
         </div>
         <button
           onClick={() => setShowInstructions(!showInstructions)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          className="px-4 py-2 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg hover:bg-blue-600/30 transition-colors text-sm font-medium"
         >
           {showInstructions ? 'Hide' : 'Show'} Instructions
         </button>
@@ -102,52 +102,52 @@ const QRCodesTab = () => {
 
       {/* Instructions */}
       {showInstructions && (
-        <div className="mb-6">
+        <div className="mb-6 glass-card p-4">
           <EventQRInstructions />
         </div>
       )}
 
       {/* Search Bar */}
       <div className="relative">
-        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           placeholder="Search events by name or venue..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-white/10 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-white placeholder-slate-500"
         />
       </div>
 
       {/* Events Grid */}
       {filteredEvents.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-          <FaQrcode className="text-6xl text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">No events available</p>
-          <p className="text-gray-500 text-sm mt-2">Events will appear here once they are created</p>
+        <div className="text-center py-12 glass-card">
+          <FaQrcode className="text-6xl text-slate-500 mx-auto mb-4" />
+          <p className="text-slate-300 text-lg">No events available</p>
+          <p className="text-slate-500 text-sm mt-2">Events will appear here once they are created</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredEvents.map((event) => (
             <div
               key={event._id}
-              className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-6"
+              className="glass-card p-6 hover:border-cyan-500/30 transition-all duration-300 group"
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold text-gray-800 flex-1">{event.name}</h3>
+                <h3 className="text-lg font-semibold text-white flex-1 group-hover:text-cyan-400 transition-colors">{event.name}</h3>
                 {getStatusBadge(event)}
               </div>
 
-              <div className="space-y-2 mb-4 text-sm text-gray-600">
-                <p><span className="font-medium">Venue:</span> {event.venue}</p>
-                <p><span className="font-medium">Dates:</span> {formatDate(event.startDate)} - {formatDate(event.endDate)}</p>
-                <p><span className="font-medium">Type:</span> <span className="capitalize">{event.type || 'General'}</span></p>
+              <div className="space-y-2 mb-4 text-sm text-slate-400">
+                <p><span className="font-medium text-slate-300">Venue:</span> {event.venue}</p>
+                <p><span className="font-medium text-slate-300">Dates:</span> {formatDate(event.startDate)} - {formatDate(event.endDate)}</p>
+                <p><span className="font-medium text-slate-300">Type:</span> <span className="capitalize">{event.type || 'General'}</span></p>
               </div>
 
               <button
                 onClick={() => handleViewQR(event._id)}
                 disabled={loadingQR}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:bg-gray-400"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 transition-all shadow-lg shadow-cyan-500/20 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaQrcode />
                 {loadingQR ? 'Loading...' : 'View Canteen QR'}
@@ -159,13 +159,13 @@ const QRCodesTab = () => {
 
       {/* Modal */}
       {showModal && selectedEvent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-gray-800">Event Canteen QR Code</h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="glass-card max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-fade-in-up">
+            <div className="sticky top-0 glass-card bg-opacity-90 border-b border-white/10 px-6 py-4 flex justify-between items-center z-10">
+              <h3 className="text-xl font-bold text-white">Event Canteen QR Code</h3>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                className="text-slate-400 hover:text-white text-2xl font-bold transition-colors"
               >
                 ×
               </button>

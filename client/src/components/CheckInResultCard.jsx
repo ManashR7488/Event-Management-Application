@@ -22,33 +22,36 @@ const CheckInResultCard = ({ result, onDismiss }) => {
   const getStatusConfig = () => {
     if (result.alreadyCheckedIn) {
       return {
-        bg: 'bg-yellow-50',
-        border: 'border-yellow-200',
-        text: 'text-yellow-800',
+        bg: 'bg-yellow-500/10',
+        border: 'border-yellow-500/20',
+        text: 'text-yellow-400',
+        subText: 'text-yellow-200/80',
         icon: FaInfoCircle,
-        iconColor: 'text-yellow-600',
         title: 'Already Checked In',
         message: 'This member was previously checked in',
+        glow: 'shadow-[0_0_15px_rgba(234,179,8,0.2)]',
       };
     } else if (result.success) {
       return {
-        bg: 'bg-green-50',
-        border: 'border-green-200',
-        text: 'text-green-800',
+        bg: 'bg-green-500/10',
+        border: 'border-green-500/20',
+        text: 'text-green-400',
+        subText: 'text-green-200/80',
         icon: FaCheckCircle,
-        iconColor: 'text-green-600',
         title: 'Check-in Successful!',
         message: 'Member has been checked in',
+        glow: 'shadow-[0_0_15px_rgba(74,222,128,0.2)]',
       };
     } else {
       return {
-        bg: 'bg-red-50',
-        border: 'border-red-200',
-        text: 'text-red-800',
+        bg: 'bg-red-500/10',
+        border: 'border-red-500/20',
+        text: 'text-red-400',
+        subText: 'text-red-200/80',
         icon: FaTimesCircle,
-        iconColor: 'text-red-600',
         title: 'Check-in Failed',
         message: result.error || 'An error occurred',
+        glow: 'shadow-[0_0_15px_rgba(248,113,113,0.2)]',
       };
     }
   };
@@ -60,50 +63,52 @@ const CheckInResultCard = ({ result, onDismiss }) => {
 
   return (
     <div
-      className={`${config.bg} border-2 ${config.border} rounded-lg p-4 shadow-lg transition-all duration-300 ${
-        isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+      className={`relative backdrop-blur-md rounded-xl p-5 border ${config.bg} ${config.border} ${config.glow} transition-all duration-300 transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3">
-          <StatusIcon className={`text-2xl ${config.iconColor}`} />
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div className={`p-2 rounded-full ${config.bg} border ${config.border}`}>
+            <StatusIcon className={`text-3xl ${config.text}`} />
+          </div>
           <div>
-            <h3 className={`font-bold ${config.text}`}>{config.title}</h3>
-            <p className={`text-sm ${config.text}`}>{config.message}</p>
+            <h3 className={`text-lg font-bold ${config.text}`}>{config.title}</h3>
+            <p className={`text-sm ${config.subText}`}>{config.message}</p>
           </div>
         </div>
         <button
           onClick={handleDismiss}
-          className={`p-1 rounded-full hover:bg-white/50 transition-colors ${config.text}`}
+          className={`p-1 rounded-full hover:bg-white/10 transition-colors ${config.text} opacity-70 hover:opacity-100`}
         >
           <FaTimes />
         </button>
       </div>
 
       {(member.name || team.teamName) && (
-        <div className={`mt-3 pt-3 border-t ${config.border} space-y-1`}>
+        <div className={`mt-4 pt-4 border-t border-white/10 space-y-2`}>
           {member.name && (
             <div className="flex justify-between text-sm">
-              <span className={`${config.text} font-medium`}>Member:</span>
-              <span className={config.text}>{member.name}</span>
+              <span className="text-slate-400 font-medium">Member:</span>
+              <span className="text-white font-semibold">{member.name}</span>
             </div>
           )}
           {member.email && (
             <div className="flex justify-between text-sm">
-              <span className={`${config.text} font-medium`}>Email:</span>
-              <span className={config.text}>{member.email}</span>
+              <span className="text-slate-400 font-medium">Email:</span>
+              <span className="text-slate-200 font-mono text-xs">{member.email}</span>
             </div>
           )}
           {team.teamName && (
             <div className="flex justify-between text-sm">
-              <span className={`${config.text} font-medium`}>Team:</span>
-              <span className={config.text}>{team.teamName}</span>
+              <span className="text-slate-400 font-medium">Team:</span>
+              <span className="text-cyan-400 font-medium">{team.teamName}</span>
             </div>
           )}
           {result.checkInTime && (
             <div className="flex justify-between text-sm">
-              <span className={`${config.text} font-medium`}>Time:</span>
-              <span className={config.text}>
+              <span className="text-slate-400 font-medium">Time:</span>
+              <span className="text-slate-200">
                 {new Date(result.checkInTime).toLocaleTimeString()}
               </span>
             </div>

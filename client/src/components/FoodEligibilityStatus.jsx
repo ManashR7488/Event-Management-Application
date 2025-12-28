@@ -1,124 +1,52 @@
 import { FaCheckCircle, FaTimesCircle, FaUser, FaCalendarAlt, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
+import FoodEligibilitySuccessScreen from './FoodEligibilitySuccessScreen';
 
-const FoodEligibilityStatus = ({ eligible, memberData, eventData, checkInTime, error }) => {
+const FoodEligibilityStatus = ({ eligible, memberData, eventData, checkInTime, error, onScanAgain }) => {
   if (eligible) {
     return (
-      <div className="bg-green-50 border-2 border-green-500 rounded-xl p-8 shadow-lg">
-        {/* Success Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-green-500 rounded-full p-6">
-            <FaCheckCircle className="text-white text-6xl" />
-          </div>
-        </div>
-
-        {/* Success Message */}
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold text-green-800 mb-2">
-            Eligible for Food!
-          </h2>
-          <p className="text-green-700 text-lg">
-            You are authorized to receive meal
-          </p>
-        </div>
-
-        {/* Member Details */}
-        {memberData && (
-          <div className="bg-white rounded-lg p-6 space-y-4">
-            <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-              <FaUser className="text-green-600 text-xl" />
-              <div className="flex-1">
-                <p className="text-sm text-gray-600">Member Name</p>
-                <p className="text-lg font-semibold text-gray-800">
-                  {memberData.name || memberData.memberName || 'N/A'}
-                </p>
-              </div>
-            </div>
-
-            {memberData.teamName && (
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-                <div className="text-green-600 text-xl">👥</div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">Team Name</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {memberData.teamName}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {eventData?.name && (
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-                <FaCalendarAlt className="text-green-600 text-xl" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">Event</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {eventData.name}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {eventData?.venue && (
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-                <FaMapMarkerAlt className="text-green-600 text-xl" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">Venue</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {eventData.venue}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {checkInTime && (
-              <div className="flex items-center gap-3">
-                <FaClock className="text-green-600 text-xl" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600">Checked In At</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {new Date(checkInTime).toLocaleString('en-US', {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <FoodEligibilitySuccessScreen
+        memberData={memberData}
+        eventData={eventData}
+        checkInTime={checkInTime}
+        onScanAgain={onScanAgain}
+      />
     );
   }
 
   // Ineligible or Error State
   return (
-    <div className="bg-red-50 border-2 border-red-500 rounded-xl p-8 shadow-lg">
+    <div className="bg-red-500/10 border h-fit border-red-500/30 rounded-2xl p-8 shadow-2xl backdrop-blur-md relative overflow-hidden animate-fade-in-up">
+       {/* Decorative Glow */}
+       <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 blur-3xl rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+       
       {/* Error Icon */}
-      <div className="flex justify-center mb-6">
-        <div className="bg-red-500 rounded-full p-6">
-          <FaTimesCircle className="text-white text-6xl" />
+      <div className="flex justify-center mb-6 relative z-10">
+        <div className="bg-red-500/20 rounded-full p-6 shadow-[0_0_20px_rgba(239,68,68,0.3)]">
+          <FaTimesCircle className="text-red-400 text-6xl drop-shadow-md" />
         </div>
       </div>
 
       {/* Error Message */}
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold text-red-800 mb-2">
+      <div className="text-center mb-8 relative z-10">
+        <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
           Not Eligible
         </h2>
-        <p className="text-red-700 text-lg">
+        <p className="text-red-300 text-lg font-medium">
           {error || 'You are not authorized to receive food at this time'}
         </p>
       </div>
 
       {/* Member Details (if available) */}
       {memberData && (
-        <div className="bg-white rounded-lg p-6 space-y-3">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4 mb-6 relative z-10 backdrop-blur-sm">
           {memberData.memberName && (
-            <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
-              <FaUser className="text-red-600 text-xl" />
+            <div className="flex items-center gap-4 pb-4 border-b border-white/5">
+              <div className="p-2.5 bg-red-500/10 rounded-lg">
+                <FaUser className="text-red-400 text-xl" />
+              </div>
               <div className="flex-1">
-                <p className="text-sm text-gray-600">Member</p>
-                <p className="text-lg font-semibold text-gray-800">
+                <p className="text-xs text-slate-400 uppercase tracking-wider font-medium">Member</p>
+                <p className="text-lg font-bold text-white">
                   {memberData.memberName}
                 </p>
               </div>
@@ -126,11 +54,13 @@ const FoodEligibilityStatus = ({ eligible, memberData, eventData, checkInTime, e
           )}
 
           {memberData.teamName && (
-            <div className="flex items-center gap-3">
-              <div className="text-red-600 text-xl">👥</div>
+            <div className="flex items-center gap-4">
+              <div className="p-2.5 bg-red-500/10 rounded-lg">
+                <span className="text-red-400 text-xl">👥</span>
+              </div>
               <div className="flex-1">
-                <p className="text-sm text-gray-600">Team</p>
-                <p className="text-lg font-semibold text-gray-800">
+                <p className="text-xs text-slate-400 uppercase tracking-wider font-medium">Team</p>
+                <p className="text-lg font-bold text-white">
                   {memberData.teamName}
                 </p>
               </div>
@@ -140,11 +70,11 @@ const FoodEligibilityStatus = ({ eligible, memberData, eventData, checkInTime, e
       )}
 
       {/* Instructions */}
-      <div className="mt-6 bg-red-100 rounded-lg p-4">
-        <p className="text-sm text-red-800 font-medium">
-          📋 Common reasons for ineligibility:
+      <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 relative z-10">
+        <p className="text-sm text-red-300 font-bold mb-2 flex items-center gap-2">
+           <span>📋</span> Common reasons for ineligibility:
         </p>
-        <ul className="mt-2 space-y-1 text-sm text-red-700">
+        <ul className="space-y-1.5 text-sm text-red-200/80 pl-1">
           <li>• Not checked in at the event gate</li>
           <li>• QR code is for a different event</li>
           <li>• Event is not currently active</li>

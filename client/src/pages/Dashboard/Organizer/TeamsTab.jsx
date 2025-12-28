@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { FaChevronDown, FaChevronUp, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaChevronDown, FaChevronUp, FaChevronLeft, FaChevronRight, FaSearch, FaFilter } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import useOrganizerStore from '../../../store/organizerStore';
-import DataTable from '../../../components/Dashboard/DataTable';
-import FilterPanel from '../../../components/Dashboard/FilterPanel';
 import { formatDate, getStatusColor, formatCheckInStatus, getCheckInStatus } from '../../../utils/dashboardHelpers';
 
 const TeamsTab = ({ eventId }) => {
@@ -25,15 +23,15 @@ const TeamsTab = ({ eventId }) => {
     }
   }, [eventId, filters, fetchTeams]);
 
-  const handleFilterChange = (newFilters) => {
-    const updatedFilters = { ...newFilters, page: 1 };
+  const handleFilterChange = (key, value) => {
+    const updatedFilters = { ...filters, [key]: value, page: 1 };
     setFilters(updatedFilters);
     
     // Update URL params
     const params = new URLSearchParams();
-    Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value && key !== 'limit') {
-        params.set(key, value);
+    Object.entries(updatedFilters).forEach(([k, v]) => {
+      if (v && k !== 'limit') {
+        params.set(k, v);
       }
     });
     setSearchParams(params);
@@ -61,206 +59,205 @@ const TeamsTab = ({ eventId }) => {
     setExpandedTeam(expandedTeam === teamId ? null : teamId);
   };
 
-  const columns = [
-    {
-      header: 'Team Name',
-      accessor: 'teamName',
-      minWidth: '200px',
-      render: (row) => (
-        <div className="font-semibold text-gray-800">{row.teamName}</div>
-      ),
-    },
-    {
-      header: 'Team Lead',
-      accessor: 'leadEmail',
-      minWidth: '200px',
-      render: (row) => (
-        <div className="text-gray-600">{row.leadEmail}</div>
-      ),
-    },
-    {
-      header: 'Members',
-      accessor: 'memberCount',
-      render: (row) => (
-        <div className="text-center">
-          <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
-            {row.members?.length || 0}
-          </span>
-        </div>
-      ),
-    },
-    {
-      header: 'Checked In',
-      accessor: 'checkedInCount',
-      render: (row) => {
-        const checkedInCount = row.members?.filter(m => m.isCheckedIn).length || 0;
-        const totalMembers = row.members?.length || 0;
-        return (
-          <div className="text-center">
-            <span className="text-gray-800 font-medium">
-              {checkedInCount} / {totalMembers}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      header: 'Check-in Status',
-      accessor: 'checkInStatus',
-      render: (row) => {
-        const checkedInCount = row.members?.filter(m => m.isCheckedIn).length || 0;
-        const totalMembers = row.members?.length || 0;
-        const status = getCheckInStatus(checkedInCount, totalMembers);
-        return (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(status)}`}>
-            {formatCheckInStatus(status)}
-          </span>
-        );
-      },
-    },
-    {
-      header: 'Payment Status',
-      accessor: 'paymentStatus',
-      render: (row) => {
-        const status = row.paymentStatus || row.paymentMetadata?.status || 'pending';
-        return (
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(status)}`}>
-            {status.toUpperCase()}
-          </span>
-        );
-      },
-    },
-    {
-      header: 'Created',
-      accessor: 'createdAt',
-      render: (row) => (
-        <div className="text-sm text-gray-600">
-          {formatDate(row.createdAt)}
-        </div>
-      ),
-    },
-    {
-      header: 'Actions',
-      accessor: 'actions',
-      render: (row) => (
-        <button
-          onClick={() => toggleTeamExpansion(row._id)}
-          className="px-3 py-1 text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
-        >
-          {expandedTeam === row._id ? (
-            <>
-              <FaChevronUp /> Hide
-            </>
-          ) : (
-            <>
-              <FaChevronDown /> View
-            </>
-          )}
-        </button>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-6">
       {/* Filter Panel */}
-      <FilterPanel
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onReset={handleResetFilters}
-        filterOptions={{
-          search: true,
-          paymentStatus: true,
-          checkInStatus: true,
-          dateRange: false,
-        }}
-      />
+      <div className="glass-card p-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1 relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search teams..."
+              value={filters.search}
+              onChange={(e) => handleFilterChange('search', e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white placeholder-slate-500"
+            />
+          </div>
+
+          {/* Payment Status Filter */}
+          <div className="min-w-[200px]">
+            <select
+              value={filters.paymentStatus}
+              onChange={(e) => handleFilterChange('paymentStatus', e.target.value)}
+              className="w-full px-4 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white appearance-none cursor-pointer"
+            >
+              <option value="" className="bg-slate-900">All Payment Status</option>
+              <option value="pending" className="bg-slate-900">Pending</option>
+              <option value="completed" className="bg-slate-900">Completed</option>
+              <option value="failed" className="bg-slate-900">Failed</option>
+            </select>
+          </div>
+
+          {/* Check-in Status Filter */}
+          <div className="min-w-[200px]">
+            <select
+              value={filters.checkInStatus}
+              onChange={(e) => handleFilterChange('checkInStatus', e.target.value)}
+              className="w-full px-4 py-2 bg-slate-900/50 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white appearance-none cursor-pointer"
+            >
+              <option value="" className="bg-slate-900">All Check-in Status</option>
+              <option value="none" className="bg-slate-900">None Checked In</option>
+              <option value="partial" className="bg-slate-900">Partially Checked In</option>
+              <option value="full" className="bg-slate-900">Fully Checked In</option>
+            </select>
+          </div>
+
+          {/* Reset Button */}
+          <button
+            onClick={handleResetFilters}
+            className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 rounded-lg transition-colors border border-white/10"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
 
       {/* Teams Table */}
       <div className="space-y-4">
         {!Array.isArray(teams) || teams.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <p className="text-gray-500">No teams found for this event</p>
+          <div className="glass-card p-12 text-center">
+            <p className="text-slate-400">No teams found for this event</p>
           </div>
         ) : (
-          teams.map((team) => (
-            <div key={team._id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="glass-card overflow-hidden">
+             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-white/5 border-b border-white/10">
                   <tr>
-                    {columns.map((column, index) => (
-                      <th
-                        key={index}
-                        className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-                      >
-                        {column.header}
-                      </th>
-                    ))}
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-cyan-300 uppercase tracking-wider">Team Name</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-cyan-300 uppercase tracking-wider">Team Lead</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-cyan-300 uppercase tracking-wider">Members</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-cyan-300 uppercase tracking-wider">Checked In</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-cyan-300 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-cyan-300 uppercase tracking-wider">Payment</th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-cyan-300 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="hover:bg-gray-50 transition-colors">
-                    {columns.map((column, colIndex) => (
-                      <td key={colIndex} className="px-6 py-4 text-sm text-gray-800">
-                        {column.render ? column.render(team) : team[column.accessor]}
-                      </td>
-                    ))}
-                  </tr>
+                <tbody className="divide-y divide-white/5">
+                  {teams.map((team) => {
+                     const checkedInCount = team.members?.filter(m => m.isCheckedIn).length || 0;
+                     const totalMembers = team.members?.length || 0;
+                     const checkInStatus = getCheckInStatus(checkedInCount, totalMembers);
+                     const paymentStatus = team.paymentStatus || team.paymentMetadata?.status || 'pending';
+
+                    return (
+                      <div key={team._id} style={{ display: 'contents' }}>
+                        <tr className="hover:bg-white/5 transition-colors group">
+                          <td className="px-6 py-4 text-sm text-white font-medium">{team.teamName}</td>
+                          <td className="px-6 py-4 text-sm text-slate-300">{team.leadEmail}</td>
+                          <td className="px-6 py-4 text-center">
+                            <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-medium border border-blue-500/20">
+                              {team.members?.length || 0}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center text-sm text-slate-300">
+                             {checkedInCount} / {totalMembers}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                              checkInStatus === 'full' ? 'bg-green-500/20 text-green-300 border-green-500/20' :
+                              checkInStatus === 'partial' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/20' :
+                              'bg-slate-500/20 text-slate-300 border-slate-500/20'
+                            }`}>
+                              {formatCheckInStatus(checkInStatus)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                              paymentStatus === 'completed' ? 'bg-green-500/20 text-green-300 border-green-500/20' :
+                              paymentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/20' :
+                              'bg-red-500/20 text-red-300 border-red-500/20'
+                            }`}>
+                              {paymentStatus.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                             <button
+                              onClick={() => toggleTeamExpansion(team._id)}
+                              className="px-3 py-1 text-cyan-400 hover:text-cyan-300 flex items-center justify-end gap-1 transition-colors ml-auto"
+                            >
+                              {expandedTeam === team._id ? (
+                                <>
+                                  Hide <FaChevronUp />
+                                </>
+                              ) : (
+                                <>
+                                  View <FaChevronDown />
+                                </>
+                              )}
+                            </button>
+                          </td>
+                        </tr>
+                        {/* Expanded Row */}
+                        {expandedTeam === team._id && (
+                          <tr>
+                            <td colSpan="7" className="p-0 border-none">
+                              <div className="bg-slate-900/50 p-6 border-y border-white/5 animate-fade-in-down">
+                                <h4 className="text-sm font-bold text-cyan-400 mb-4 uppercase tracking-wider">
+                                  Team Members ({team.members?.length || 0})
+                                </h4>
+                                {team.members && team.members.length > 0 ? (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {team.members.map((member, index) => (
+                                      <div
+                                        key={index}
+                                        className="bg-slate-950/50 rounded-lg p-4 border border-white/5 hover:border-cyan-500/30 transition-colors"
+                                      >
+                                        <div className="flex items-start justify-between mb-2">
+                                          <div className="font-semibold text-white">{member.name}</div>
+                                          {member.isCheckedIn ? (
+                                            <span className="px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-[10px] uppercase font-bold border border-green-500/20">
+                                              Checked In
+                                            </span>
+                                          ) : (
+                                            <span className="px-2 py-0.5 bg-slate-500/20 text-slate-400 rounded-full text-[10px] uppercase font-bold border border-slate-500/20">
+                                              Not Checked In
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div className="text-sm text-slate-400 space-y-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-slate-600 text-xs uppercase">Email</span>
+                                            <span className="truncate">{member.email}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-slate-600 text-xs uppercase">Phone</span>
+                                            <span>{member.phone}</span>
+                                          </div>
+                                          {member.collegeName && (
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-slate-600 text-xs uppercase">College</span>
+                                              <span className="truncate" title={member.collegeName}>{member.collegeName}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-slate-500 italic">No members found</p>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </div>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
-
-            {/* Expanded Member Details */}
-            {expandedTeam === team._id && (
-              <div className="border-t border-gray-200 bg-gray-50 p-6">
-                <h4 className="text-lg font-semibold text-gray-800 mb-4">
-                  Team Members ({team.members?.length || 0})
-                </h4>
-                {team.members && team.members.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {team.members.map((member, index) => (
-                      <div
-                        key={index}
-                        className="bg-white rounded-lg p-4 border border-gray-200"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="font-semibold text-gray-800">{member.name}</div>
-                          {member.isCheckedIn ? (
-                            <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                              Checked In
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
-                              Not Checked In
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <div>{member.email}</div>
-                          <div>{member.phone}</div>
-                          {member.collegeName && (
-                            <div className="text-xs text-gray-500">{member.collegeName}</div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No members found</p>
-                )}
-              </div>
-            )}
           </div>
-          ))
         )}
       </div>
 
       {/* Pagination Controls */}
       {teamsPagination && teamsPagination.totalPages > 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="glass-card p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-slate-400">
               Showing {((teamsPagination.currentPage - 1) * teamsPagination.limit) + 1} to{' '}
               {Math.min(teamsPagination.currentPage * teamsPagination.limit, teamsPagination.total)} of{' '}
               {teamsPagination.total} results
@@ -269,7 +266,7 @@ const TeamsTab = ({ eventId }) => {
               <button
                 onClick={() => handlePageChange(teamsPagination.currentPage - 1)}
                 disabled={teamsPagination.currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 <FaChevronLeft className="text-xs" />
                 Previous
@@ -287,14 +284,14 @@ const TeamsTab = ({ eventId }) => {
                     return (
                       <div key={page} className="flex items-center gap-2">
                         {showEllipsis && (
-                          <span className="text-gray-500">...</span>
+                          <span className="text-slate-600">...</span>
                         )}
                         <button
                           onClick={() => handlePageChange(page)}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                             page === teamsPagination.currentPage
-                              ? 'bg-blue-600 text-white'
-                              : 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                              ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-cyan-500/20'
+                              : 'border border-white/10 text-slate-300 hover:bg-white/5'
                           }`}
                         >
                           {page}
@@ -306,7 +303,7 @@ const TeamsTab = ({ eventId }) => {
               <button
                 onClick={() => handlePageChange(teamsPagination.currentPage + 1)}
                 disabled={teamsPagination.currentPage === teamsPagination.totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                className="px-4 py-2 border border-white/10 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
               >
                 Next
                 <FaChevronRight className="text-xs" />
@@ -318,26 +315,17 @@ const TeamsTab = ({ eventId }) => {
 
       {/* Loading State */}
       {isLoading.teams && teams.length === 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-12">
+        <div className="glass-card p-12">
           <div className="flex flex-col items-center justify-center gap-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            <p className="text-gray-600">Loading teams...</p>
-          </div>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!isLoading.teams && teams.length === 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-12">
-          <div className="text-center">
-            <p className="text-gray-500 text-lg">No teams found</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+            <p className="text-slate-400">Loading teams...</p>
           </div>
         </div>
       )}
 
       {/* Error State */}
       {errors.teams && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700">
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400">
           {errors.teams}
         </div>
       )}

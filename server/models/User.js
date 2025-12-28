@@ -48,6 +48,20 @@ const userSchema = new mongoose.Schema(
       },
       default: 'teamLead',
     },
+    teamId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team',
+      default: null,
+    },
+    memberIndex: {
+      type: Number,
+      default: null,
+    },
+    qrToken: {
+      type: String,
+      default: null,
+      sparse: true, // Allow multiple null values, but unique non-null values
+    },
     isActive: {
       type: Boolean,
       default: true,
@@ -66,6 +80,8 @@ const userSchema = new mongoose.Schema(
 
 // Indexes
 userSchema.index({ role: 1 });
+userSchema.index({ teamId: 1, memberIndex: 1 });
+userSchema.index({ qrToken: 1 }, { unique: true, sparse: true });
 
 // Pre-save hook to hash password before saving
 userSchema.pre('save', async function () {
